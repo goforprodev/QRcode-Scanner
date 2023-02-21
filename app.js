@@ -13,8 +13,11 @@ app.use("/img", express.static(__dirname + "public/img"));
 app.set("views", "./views");
 app.set("view engine", "ejs");
 
-app.get("", (req, res) => {
-  res.render("demo", { text: "This is sparta" });
+app.get("/", (req, res) => {
+  res.render("index");
+});
+app.get("/demo", (req, res) => {
+  res.render("demo");
 });
 
 // listen on port 3000

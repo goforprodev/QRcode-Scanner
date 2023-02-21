@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TSCI HES 2022 QR-CODE SCANNER</title>
+    <!-- un comment this to use cdn -- preferably for now -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/input.css"> 
+    <!-- <link rel="stylesheet" href="css/styley.css"> -->
+  </head>
+  <body class="bg-white">
+    <main class="w-full h-[50vh] bg-[#7250f2]">
+      <h1 class="text-3xl font-bold text-center capitalize p-5 text-white">
+        Tsci Hes 2022 Qr-Code Scanner
+      </h1>
+        <div
+        id="qr-container"
+        class="bg-white shadow-md mx-6 my-8 p-4 rounded-lg flex flex-col gap-5 h-auto"
+      >
+        <div id="video-container" class="py-4 flex-1">
+          <video id="qr-video" class="h-full border-4 border-rose-400 rounded-xl"></video>
+        </div>
+        <div class="button-container flex justify-around">
+          <button
+            id="start-button"
+            class="rounded-lg bg-rose-400 w-40 h-12 capitalize text-white font-semibold mr-3"
+          >
+            start
+          </button>
+          <button
+            id="stop-button"
+            class="border-2 border-rose-400 rounded-lg w-40 h-12 capitalize text-rose-400 font-semibold"
+          >
+            stop
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ======HIDDEN CLASS STUFF========= -->
+    <div class="hidden">
+      <label>
+        Highlight Style
+        <select id="scan-region-highlight-style-select">
+          <option value="default-style">Default style</option>
+          <option value="example-style-1">Example custom style 1</option>
+          <option value="example-style-2">Example custom style 2</option>
+        </select>
+      </label>
+      <label>
+        <input id="show-scan-region" type="checkbox" />
+        Show scan region canvas
+      </label>
+    </div>
+    <div class="hidden">
+      <select id="inversion-mode-select">
+        <option value="original">
+          Scan original (dark QR code on bright background)
+        </option>
+      </select>
+      <br />
+    </div>
+    <!-- <b>Device has camera: </b>
+<span id="cam-has-camera"></span>
+<br> -->
+    <div class="hidden">
+      <b>Preferred camera:</b>
+      <select id="cam-list">
+        <option value="environment" selected>
+          Environment Facing (default)
+        </option>
+        <option value="user">User Facing</option>
+      </select>
+    </div>
+    <div class="hidden">
+      <b>Camera has flash: </b>
+      <span id="cam-has-flash"></span>
+      <div>
+        <button id="flash-toggle">
+          📸 Flash: <span id="flash-state">off</span>
+        </button>
+      </div>
+    </div>
+    <div class="hidden">
+      <br />
+      <b>Detected QR code: </b>
+      <span id="cam-qr-result"></span>
+      <br />
+    </div>
+    <!-- ======HIDDEN CLASS STUFF========= -->
+
+    <div class="log-container w-full h-auto ">
+        <div class="w-100% flex px-4 justify-between py-2">
+        <p class="left">Scan Logs</p>
+        <button id="clear_log" class="underline underline-offset-4 font-semibold text-rose-400">Clear log</button>
+        </div>
+        <!-- <hr /> -->
+        <div id="loggs" class="w-full px-4 py-2">
+         <div
+        id="log"
+        class="bg-white my-2 shadow-md py-4 px-2 rounded-lg border-l-8 border-rose-400 flex gap-2 items-center h-auto"
+      >
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAMAAAAshD+zAAAAMFBMVEX///8AAABUVFSqqqo4ODjHx8eNjY1ubm5iYmKxsbHj4+OKioqbm5tMTEx+fn5ycnIqcEgyAAAFJ0lEQVR4nO2d7ZLaMAxFA2wI0P14/7ftTJ2d+m6vJRsCS9tz/3QwcuwTdyxH0pJpQgghhBBCCA3quB9S6TSXD0v9zbFzjLXT3DYfm1Ew7rTfDal0OpQPL/U3+84x1k6HtvnYjIJxgQMOOOA2h/s4JBI4N5kXA6wgbbiDsdtlM/rohgtupIz4QLhsRgfggAPuqeEuZlOazYir3aV8evmlt/LPqT7Unkrbj2Iudud6Emdpk6FmM6XLVXCfG36tvRnR3elgRYLVbF9vJ/MTyWSBAw444J4XbnUF72XDX32AtBW7s7iCoh+y7Rfrd3Et3wynfcVuX9vpirRXSScIHHDAAfcvwwWPNy/tvm5KwAEHHHDPDje3k3syojs4v8khWbOT5Svpe6rbAjiXHJ2vggskIwaPPOkqHdp2bqi2gAMOOOC+Aa5XpZOGvyWGIlv86lpea/fw3rbTyH2n7pU2do8twSPPmB1wwAEH3FPB3aLUf+XFOGKQOttHCjjggHusnh5urfMoH7S+xNlJbcqxTjRqUbckGqU2RQuupV5FalPcXLRN5mKVxvbVzt19p7EVyXMKri2fC3ATcLWAGwBxbf853FJ2YdmST2aLf63LCpfylbgCVbv8UOVcQeoeJIy/BHAumeEccfrYoupdOWeX9u3+XwQccMABtxmcG8Q9oqQXDHIA7ib0Xi8ABg444IB7INxs6kYWczA91m1rovFsCrPXs3I71rJKDuxHmUv5oMXftfVnktLFZFSprwqiVa6kPoh0peMG0bTu/4LAAQcccPeBk+1XJdvvYlzBGuZw7sG5kfa27+pV9E9CXeg8dwWB0hUJHHGvXVHusNvzuzJtDBxwwAF3O1xvAKY3zyCTyYNBveMCd3Vn4H4LuAm4TrigvkQOv+6AvbSLteUULb+bonEQl6RMk4pufqN3QdrSRxR3vXxFrlo5Nz/ggAMOuPvCBa6gtL3KFr92Mm3uelqS6OIqzk7GDSoOXVwlV+qcc4ctdsHjkrMbG2NUwAEHHHC3gMjV3eNIGiAK8gep/xqto+y1Aw444IDbDE7iES6+kScfJVkoh2SNjZRv9EcD5eDs/qje/S2PS3CO3oV2m67SOs32qqfl83lETPqOppKBAw444G6HC0LTV7mCdTuXPfu9rkM5pdu+C8WLG+l2BWn0a9CJp6Xy20W68r7AAQcccJvBpRfsnbQDviX3cK/ol0wGOOCAA65XLvk41wfTvakvcfUq+jIGV8MiBddSw6K/MytxFVfAHRSdq3rvfq8/dP7rqjL73L8CBxxwwD0QLnAF7bZXE1fRV7RJ36B0UeIqsu2fxT04tySuZTvld1rMA+fsVt31Tf93AAcccMDdF0465+qFS4Hdzer1kRNwwAEH3N8BN7cPzm8mIflWH5xXuUJvqVdxsZYvU08Pznu5aW0JnPsqSCUHvk8MAj+XTc8LuAk44L6MC9w2cL2vaFsl4fRBV7DUsRGNv4ifkWLJo4w76AoOuz+1b8P1FpP2rtxg9EvagAMOOOD+abipHjfwkfJhNEAEHHDAAfdNcJd2YnCpD7Xu3carFlNzIgfsWfrK9dyLIbaDGyyBD9LGYyvs+m6+csABBxxwKdzl8Kf0hcNTbSclhFqbUuxczYn+pmw7/hLEUFydTA4XaJfd1fwnCNyddivXbhvNfwMHHHDfAvdh9knR3wzXKwciA6fAwY0ZzBXkwMABBxxwm8FJIi9X6aR1KHKoDd537MYVO3cGDl6aKeMihBBCCCGE+vUTu/p9Nm2qdPsAAAAASUVORK5CYII=" alt="" class="w-10">
+        </div>
+        </div>
+    </div>
+  </body>
+  <script src="js/js-1.js"></script>
+  <script src="js/js-2.js"></script>
+  <script src="js/module.js" type="module"></script>
+</html>

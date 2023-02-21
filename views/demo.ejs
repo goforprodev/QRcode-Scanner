@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
   <head>
     <meta charset="UTF-8" />
     <title>TSCI HES 2022 QR-CODE SCANNER</title>
@@ -78,7 +78,9 @@
     <p class="left">Scan Logs</p>
     <button id="clear_log">Clear log</button>
     <hr />
-    <div id="loggs"></div>
+    <div id="loggs">
+     
+    </div>
 
     <script src="js/js-1.js"></script>
     <script src="js/js-2.js"></script>
@@ -137,6 +139,7 @@
 
       function setResult(label, result) {
         console.log(result.data);
+        ce(result.data, "blue");
 
         // make sure its a TSCI QR code
         if (result.data.includes("thestandingchurch")) {
@@ -264,6 +267,6 @@
 
       //     download(csvString);
       // });
-    </script> 
+    </script>
   </body>
 </html>
