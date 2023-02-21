@@ -36,6 +36,7 @@ const clearLogs = () => {
 };
 
 const parseResult = (result) => {
+  console.log(result);
   console.log(result.data);
   showLog(result.data);
 };
@@ -50,18 +51,14 @@ const stopScan = () => {
 
 // ###### Web Cam Scanning #######
 
-const scanner = new QrScanner(
-  video,
-  (result) => setResult(camQrResult, result),
-  {
-    onDecodeError: (error) => {
-      camQrResult.textContent = error;
-      camQrResult.style.color = "inherit";
-    },
-    highlightScanRegion: true,
-    highlightCodeOutline: true,
-  }
-);
+const scanner = new QrScanner(video, (result) => parseResult(result), {
+  onDecodeError: (error) => {
+    camQrResult.textContent = error;
+    camQrResult.style.color = "inherit";
+  },
+  highlightScanRegion: true,
+  highlightCodeOutline: true,
+});
 
 const updateFlashAvailability = () => {
   scanner.hasFlash().then((hasFlash) => {
