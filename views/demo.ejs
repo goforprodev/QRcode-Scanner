@@ -73,14 +73,17 @@
 
     <div>
       <!-- <button id="download_csv">Download CSV file</button> -->
+      <div class="upload-container">
+        <input type="file" id="file_upload" />
+      </div>
+      <br />
+      <button class="upload-btn" onclick="uploadFiles()">Submit</button>
     </div>
 
     <p class="left">Scan Logs</p>
     <button id="clear_log">Clear log</button>
     <hr />
-    <div id="loggs">
-     
-    </div>
+    <div id="loggs"></div>
 
     <script src="js/js-1.js"></script>
     <script src="js/js-2.js"></script>
