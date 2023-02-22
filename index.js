@@ -20,5 +20,12 @@ app.get("/demo", (req, res) => {
   res.render("demo");
 });
 
+app.post("/some_route", (req, res) => {
+  if (req.body) {
+    console.log(req.body);
+    res.status(200).send({ data: "success" });
+  }
+});
+
 // listen on port 3000
 app.listen(port, () => console.info(`listening on port ${port}`));
