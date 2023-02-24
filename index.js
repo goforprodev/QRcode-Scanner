@@ -53,12 +53,22 @@ app.post("/some", (req, res) => {
       createTable();
     }
 
-    const q = "INSERT INTO users (scanNumber,createdOn) VALUES (?,?)";
-    const values = [req.body.text, new Date()];
-    db.query(q, values, (err, rows) => {
-      if (err) return res.status(500).json("Table Creation Failed");
-      // isTable = false;
-      return res.json("Successfully inserted to Table - users");
+    const q = "SELECT * FROM users WHERE scanNumber = ?";
+    db.query(q, [req.body.text], (err, rows) => {
+      if (err) return res.status(500).json({ message: err });
+
+      if (rows.length) {
+        return res.status(409).json({ message: "Already Exists" });
+      }
+
+      // if the scanNumber does not exist in the database, insert it
+      const q = "INSERT INTO users (scanNumber,createdOn) VALUES (?,?)";
+      const values = [req.body.text, new Date()];
+      db.query(q, values, (err, rows) => {
+        if (err)
+          return res.status(500).json({ message: "Table Creation Failed" });
+        return res.json({ message: "Successfully inserted to Table - users" });
+      });
     });
   }
 });
