@@ -45,6 +45,17 @@ app.get("/demo", (req, res) => {
   res.render("demo");
 });
 
+app.get("/download", (req, res) => {
+  const q = "SELECT * FROM users";
+
+  db.query(q, (err, row) => {
+    if (err) res.status(500).json({ message: "An error occured" });
+    if (row.length) {
+      res.status(200).send({ data: row, redirect_path: "/" });
+    }
+  });
+});
+
 app.post("/some", (req, res) => {
   if (req.body) {
     // res.status(200).send(req.body);
