@@ -58,7 +58,11 @@ app.post("/some", (req, res) => {
       if (err) return res.status(500).json({ message: err });
 
       if (rows.length) {
-        return res.status(409).json({ message: "Already Exists" });
+        let dateCreated = new Date(rows[0].createdOn);
+        let currentDate = new Date();
+        if (dateCreated.getDate() == currentDate.getDate()) {
+          return res.status(409).json({ message: "Already Exists" });
+        }
       }
 
       // if the scanNumber does not exist in the database, insert it
@@ -67,7 +71,9 @@ app.post("/some", (req, res) => {
       db.query(q, values, (err, rows) => {
         if (err)
           return res.status(500).json({ message: "Table Creation Failed" });
-        return res.json({ message: "Successfully inserted to Table - users" });
+        return res
+          .status(200)
+          .json({ message: "Successfully inserted to Table - users" });
       });
     });
   }
