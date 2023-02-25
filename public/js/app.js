@@ -43,6 +43,8 @@ const clearLogs = () => {
 
 const parseResult = (result) => {
   const modText = trimText(result);
+  console.log(modText);
+  if (!modText) return;
   fetch("/some", {
     method: "POST",
     headers: {
@@ -59,11 +61,6 @@ const parseResult = (result) => {
       console.log(response);
     }
   });
-  // .then(async (res) => {
-  //   await res.json().then((res) => {
-  //     console.log(res);
-  //   });
-  // });
 };
 
 const startScan = () => {
@@ -78,20 +75,8 @@ const fetchJsonData = async () => {
   let res = await fetch("/download", {
     method: "GET",
   });
-
   let result = await res.json();
-
   return result.data;
-  // let fetchedData;
-  // fetch("/download", {
-  //   method: "GET",
-  // })
-  //   .then((res) => res.json())
-  //   .then((result) => {
-  //     fetchedData = result.data;
-  //   });
-  // console.log(fetchedData);
-  // return fetchedData;
 };
 
 const downloadToCsv = (data) => {
@@ -108,7 +93,7 @@ const downloadToCsv = (data) => {
 const sortAndCount = (input) => {
   let rep = {};
   let refinedData = {};
-  for (let i = 0; i < input.length; i++) {
+  for (let i = 0; i < input?.length; i++) {
     let scanNo = input[i].scanNumber;
     !rep[scanNo] ? (rep[scanNo] = 1) : rep[scanNo]++;
     !refinedData[scanNo]
@@ -213,10 +198,6 @@ flashToggle.addEventListener("click", () => {
 // ###### Web Cam Scanning end #######
 
 // ###### File Download var  #######
-let data = await fetchJsonData();
-let { stat, refinedData } = sortAndCount(data);
-let title = getMaxAndPopulate(stat);
-let csvString = extractAndPopulate(title, refinedData);
 
 // ###### File Download var  #######
 
@@ -224,14 +205,18 @@ let csvString = extractAndPopulate(title, refinedData);
 clearBtn.addEventListener("click", clearLogs);
 startBtn.addEventListener("click", startScan);
 stopBtn.addEventListener("click", stopScan);
-downloadBtn.addEventListener("click", () => {
+downloadBtn.addEventListener("click", async () => {
+  let data = await fetchJsonData();
+  let { stat, refinedData } = sortAndCount(data);
+  let title = getMaxAndPopulate(stat);
+  let csvString = extractAndPopulate(title, refinedData);
   downloadToCsv(csvString);
 });
 document.querySelector("#file_upload").addEventListener("change", () => {
   QrScanner.scanImage(filesUI.files[0])
     .then((result) => {
       parseResult(result);
-      //   showLog(result);
+      // showLog(result);
     })
     .catch((error) => console.log(error || "No QR code found."));
 });
