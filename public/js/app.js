@@ -74,26 +74,78 @@ const stopScan = () => {
   scanner.stop();
 };
 
-const downloadToCsv = () => {
-  let data;
-  fetch("/download", {
+const fetchJsonData = async () => {
+  let res = await fetch("/download", {
     method: "GET",
-  })
-    .then((res) => res.json())
-    .then((result) => {
-      // if (data.redirect_path) {
-      //   location.href = "/";
-      // }
-      data = JSON.stringify(result.data);
-      let bb = new Blob([data], { type: "text/plain" });
-      let a = document.createElement("a");
-      a.download = "file.csv";
-      a.href = window.URL.createObjectURL(bb);
-      a.innerText = "Download done";
-      a.style.display = "none";
-      a.click();
-    });
+  });
+
+  let result = await res.json();
+
+  return result.data;
+  // let fetchedData;
+  // fetch("/download", {
+  //   method: "GET",
+  // })
+  //   .then((res) => res.json())
+  //   .then((result) => {
+  //     fetchedData = result.data;
+  //   });
+  // console.log(fetchedData);
+  // return fetchedData;
 };
+
+const downloadToCsv = (data) => {
+  let bb = new Blob([data], { type: "text/plain" });
+  let a = document.createElement("a");
+  a.download = "file.csv";
+  a.href = window.URL.createObjectURL(bb);
+  a.innerText = "Download done";
+  a.style.display = "none";
+  a.click();
+};
+
+// ##### modifiy json data to csv format
+const sortAndCount = (input) => {
+  let rep = {};
+  let refinedData = {};
+  for (let i = 0; i < input.length; i++) {
+    let scanNo = input[i].scanNumber;
+    !rep[scanNo] ? (rep[scanNo] = 1) : rep[scanNo]++;
+    !refinedData[scanNo]
+      ? (refinedData[scanNo] = [scanNo, input[i].createdOn])
+      : !refinedData[scanNo].includes(input[i].createdOn)
+      ? refinedData[scanNo].push(input[i].createdOn)
+      : "";
+  }
+  return {
+    stat: rep,
+    refinedData,
+  };
+};
+
+const getMaxAndPopulate = (stat) => {
+  let max = 0;
+  let title = ["Scan Number"];
+
+  for (let i in stat) {
+    max = stat[i] > max ? stat[i] : max;
+  }
+
+  for (let i = 0; i < max; i++) {
+    title.push(`Scan #${i + 1}`);
+  }
+
+  return title;
+};
+
+const extractAndPopulate = (heading, obj) => {
+  const csvString = [heading, ...Object.values(obj)]
+    .map((e) => e.join(","))
+    .join("\n");
+
+  return csvString;
+};
+// ##### modifiy json data to csv format
 
 // ###### Web Cam Scanning #######
 
@@ -160,11 +212,21 @@ flashToggle.addEventListener("click", () => {
 
 // ###### Web Cam Scanning end #######
 
+// ###### File Download var  #######
+let data = await fetchJsonData();
+let { stat, refinedData } = sortAndCount(data);
+let title = getMaxAndPopulate(stat);
+let csvString = extractAndPopulate(title, refinedData);
+
+// ###### File Download var  #######
+
 // EVENT HANDLERS
 clearBtn.addEventListener("click", clearLogs);
 startBtn.addEventListener("click", startScan);
 stopBtn.addEventListener("click", stopScan);
-downloadBtn.addEventListener("click", downloadToCsv);
+downloadBtn.addEventListener("click", () => {
+  downloadToCsv(csvString);
+});
 document.querySelector("#file_upload").addEventListener("change", () => {
   QrScanner.scanImage(filesUI.files[0])
     .then((result) => {
