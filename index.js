@@ -92,7 +92,6 @@ app.get("/download", (req, res) => {
   });
 });
 
-
 app.get("/deletedb", (req, res) => {
   const q = "DROP TABLE users";
   db.query(q);
@@ -100,4 +99,4 @@ app.get("/deletedb", (req, res) => {
 });
 
 // listen on port 3000
-app.listen(port, () => console.info(`listening on port ${port}`));
+app.listen(port, "0.0.0.0", () => console.info(`listening on port ${port}`));
