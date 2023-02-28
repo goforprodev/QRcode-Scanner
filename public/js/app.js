@@ -1,6 +1,7 @@
 // UI ELEMENTS
 const logsUI = document.getElementById("logs");
 const filesUI = document.getElementById("file_upload");
+const logge = document.getElementById("logges");
 
 // BUTTONS
 const clearBtn = document.getElementById("clear_log");
